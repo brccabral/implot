@@ -5,7 +5,8 @@ include(GNUInstallDirs)
 
 find_package(imgui REQUIRED)
 
-add_library(implot)
+add_library(implot STATIC)
+add_library(implot::implot ALIAS implot)
 target_sources(implot
     PUBLIC
         FILE_SET HEADERS
@@ -13,17 +14,13 @@ target_sources(implot
     PRIVATE
         implot.cpp implot_items.cpp
 )
-target_link_libraries(implot PUBLIC imgui::imgui imgui::backend_glfw_vulkan)
+target_link_libraries(implot PUBLIC imgui::imgui)
 
+set_target_properties(implot PROPERTIES EXPORT_NAME "implot")
 install(TARGETS implot
         EXPORT implotTargets
         ARCHIVE DESTINATION lib
         FILE_SET HEADERS DESTINATION include
-)
-
-install(EXPORT implotTargets
-        NAMESPACE implot::
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/implot
 )
 
 include(CMakePackageConfigHelpers)
@@ -41,4 +38,22 @@ configure_file(cmake/implotConfig.cmake.in implotConfig.cmake @ONLY)
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/implotConfig.cmake"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/implot
+)
+
+add_library(implot_demo STATIC)
+add_library(implot::demo ALIAS implot_demo)
+target_sources(implot_demo
+    PRIVATE implot_demo.cpp
+)
+target_link_libraries(implot_demo PUBLIC implot::implot)
+
+set_target_properties(implot_demo PROPERTIES EXPORT_NAME "demo")
+install(TARGETS implot_demo
+        EXPORT implotTargets
+        ARCHIVE DESTINATION lib
+)
+
+install(EXPORT implotTargets
+        NAMESPACE implot::
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/implot
 )
